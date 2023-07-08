@@ -9,9 +9,9 @@ import com.stulsoft.sudoku.model.Cell
 import javax.swing.border.EtchedBorder
 import scala.swing.GridPanel
 
-class Square extends GridPanel(3, 3):
+class Square(val table:Option[Table] = None) extends GridPanel(3, 3):
   for (i <- 1 to 9)
-    contents += new Cell
+    contents += new Cell(table)
 
   border = new EtchedBorder
 
@@ -32,4 +32,7 @@ class Square extends GridPanel(3, 3):
     for {
       row <- 1 to 3
       column <- 1 to 3
-    } cell(row, column).value = None
+    } {
+      cell(row, column).value = None
+      cell(row, column).editable = false
+    }

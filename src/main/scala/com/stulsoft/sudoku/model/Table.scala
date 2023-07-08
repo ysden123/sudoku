@@ -4,15 +4,20 @@
 
 package com.stulsoft.sudoku.model
 
+import com.stulsoft.sudoku.Config
 import com.stulsoft.sudoku.logic.{Util, Validator}
 
+import java.awt.Color
+import javax.swing.BorderFactory
 import javax.swing.border.EtchedBorder
-import scala.swing.GridPanel
+import scala.swing.{Color, GridPanel}
 import scala.util.Random
 
 class Table extends GridPanel(3, 3):
+  private var activeCell: Option[Cell] = None
+
   for (i <- 1 to 9)
-    contents += new Square
+    contents += new Square(Some(this))
 
   border = new EtchedBorder
 
@@ -21,6 +26,7 @@ class Table extends GridPanel(3, 3):
       row <- 1 to 3
       column <- 1 to 3
     } square(row, column).clear()
+    activeCell = None
 
   def initialize(): Unit =
     val start = System.currentTimeMillis()
@@ -51,15 +57,16 @@ class Table extends GridPanel(3, 3):
         end for
       end for
       tableFilled = countFilledCellsInTable() == 9 * 9
-      maxAttempt=attempt
+      maxAttempt = attempt
     }
     println(s"Duration: ${Util.durationToString(start, System.currentTimeMillis())}, tableFilled=$tableFilled, maxAttempt=$maxAttempt, maxIteration=$maxIteration")
     if tableFilled then
-      for(row <- 1 to 9)
+      for (row <- 1 to 9)
         val numbers = random.shuffle(List(1, 2, 3, 4, 5, 6, 7, 8, 9)).toArray
-        for(columnItem <- 0 to 1)
+        for (columnItem <- 0 until Config.level())
           val column = numbers(columnItem)
           updateCell(row, column, None)
+          updateCell(row, column, true)
     else
       clear()
 
@@ -85,6 +92,30 @@ class Table extends GridPanel(3, 3):
    */
   def updateCell(row: Int, column: Int, value: Option[Int]): Unit =
     require((value.isDefined && (value.get > 0 && value.get < 10)) || value.isEmpty)
+    cell(row, column).value = value
+
+  def updateCell(row: Int, column: Int, isEditable: Boolean): Unit =
+    cell(row, column).editable = isEditable
+
+  def switchActiveCell(cell: Cell): Unit =
+    activeCell.foreach(ac => {
+      if ac.cellId() != cell.cellId() then
+        ac.active = false
+    })
+    activeCell = Some(cell)
+
+  def updateBorder():Unit=
+    val color = if Validator.isValidTable(this) then Color.GREEN else Color.RED
+    border = BorderFactory.createLineBorder(color, 3)
+
+  /**
+   * Returns a cell for specified row and column in the table.
+   *
+   * @param row    the table row, starting with 1
+   * @param column the table column, starting with 1
+   * @return the cell for specified row and column in the table.
+   */
+  private def cell(row: Int, column: Int): Cell =
     val squareRowIndex = Util.squareIndex(row)
     val rowInSquare = Util.indexInSquare(row)
 
@@ -93,20 +124,11 @@ class Table extends GridPanel(3, 3):
 
     square(squareRowIndex, squareColumnIndex)
       .cell(rowInSquare, columnInSquare)
-      .value = value
 
   private def countFilledCellsInRow(row: Int): Int =
     var count = 0
-    val squareRowIndex = Util.squareIndex(row)
-    val rowInSquare = Util.indexInSquare(row)
-
     for (column <- 1 to 9)
-      val squareColumnIndex = Util.squareIndex(column)
-      val columnInSquare = Util.indexInSquare(column)
-      square(squareRowIndex, squareColumnIndex)
-        .cell(rowInSquare, columnInSquare)
-        .value.foreach(_ => count += 1)
-
+      cell(row, column).value.foreach(_ => count += 1)
     count
 
   private def countFilledCellsInTable(): Int =

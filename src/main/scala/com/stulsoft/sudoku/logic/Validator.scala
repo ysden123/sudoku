@@ -49,8 +49,8 @@ object Validator:
         val value = cell.value
         if value.isDefined then
           val index = value.get
-          usedValues(index) += 1
-          if usedValues(index) > 1 then isValid = false
+          usedValues(index - 1) += 1
+          if usedValues(index - 1) > 1 then isValid = false
 
     isValid
 
@@ -82,8 +82,8 @@ object Validator:
         val value = cell.value
         if value.isDefined then
           val index = value.get
-          usedValues(index) += 1
-          if usedValues(index) > 1 then isValid = false
+          usedValues(index - 1) += 1
+          if usedValues(index - 1) > 1 then isValid = false
 
     isValid
 
@@ -102,5 +102,22 @@ object Validator:
           val theValue = square.cell(rowIndex, columnInSquare).value
           if theValue.isDefined && theValue.get == value.get then isValid = false
       }
+
+    isValid
+
+  def isValidTable(table: Table): Boolean =
+    var isValid = true
+
+    for (row <- 1 to 9 if isValid)
+      isValid = isValidRow(table, row)
+
+    for (column <- 1 to 9 if isValid)
+      isValid = isValidColumn(table, column)
+
+    for {
+      row <- 1 to 3 if isValid
+      column <- 1 to 3 if isValid
+    }
+      isValid = isValidSquare(table.square(row, column))
 
     isValid
