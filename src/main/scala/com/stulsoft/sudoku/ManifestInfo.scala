@@ -63,3 +63,12 @@ case class ManifestInfo(groupId: String, artifactId: String) extends StrictLoggi
         is.close()
         Option(manifestAttrValue(manifest, "Implementation-Version"))
       case None => None
+
+  def buildDate():Option[String]=
+    resourceWithManifest() match
+      case Some(url) =>
+        val is = url.openStream()
+        val manifest = new Manifest(is)
+        is.close()
+        Option(manifestAttrValue(manifest, "Build-Date"))
+      case None => None

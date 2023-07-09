@@ -70,6 +70,15 @@ class Table extends GridPanel(3, 3):
     else
       clear()
 
+  def restoreInitialState(): Unit =
+    for {
+      row <- 1 to 9
+      column <- 1 to 9
+    } {
+      val aCell = cell(row, column)
+      if aCell.editable then aCell.value = None
+    }
+
   /**
    * Returns a square with specified column and column.
    *
@@ -104,7 +113,7 @@ class Table extends GridPanel(3, 3):
     })
     activeCell = Some(cell)
 
-  def updateBorder():Unit=
+  def updateBorder(): Unit =
     val color = if Validator.isValidTable(this) then Color.GREEN else Color.RED
     border = BorderFactory.createLineBorder(color, 3)
 

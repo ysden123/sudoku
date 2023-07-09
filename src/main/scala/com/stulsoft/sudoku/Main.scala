@@ -12,13 +12,17 @@ import scala.swing.{Action, Dimension, Frame, Label, MainFrame, Menu, MenuBar, M
 
 object Main extends SimpleSwingApplication:
   override def top: Frame = new MainFrame:
-    val theMainFrame: MainFrame = this
-    val version: String = ManifestInfo("com.stulsoft", "sudoku").version() match
+    private val theMainFrame: MainFrame = this
+    private val manifestInfo = ManifestInfo("com.stulsoft", "sudoku")
+    private val version = manifestInfo.version() match
       case Some(version) =>
         version
       case None =>
         ""
-    title = "Sudoku " + version
+    private val buildDate = manifestInfo.buildDate() match
+      case Some(theBuildDate) => theBuildDate
+      case None => ""
+    title = "Sudoku " + version + " " + buildDate
 
     /*
         private val testLabel = Cell()
@@ -57,8 +61,11 @@ object Main extends SimpleSwingApplication:
       }
 
       contents += new Menu("Game"){
-        contents += new MenuItem(Action("Restart"){
+        contents += new MenuItem(Action("Regenerate"){
           table.initialize()
+        })
+        contents += new MenuItem(Action("Restore initial table state"){
+          table.restoreInitialState()
         })
       }
     }
