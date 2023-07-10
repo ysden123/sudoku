@@ -59,11 +59,12 @@ class Table extends GridPanel(3, 3):
       tableFilled = countFilledCellsInTable() == 9 * 9
       maxAttempt = attempt
     }
-    println(s"Duration: ${Util.durationToString(start, System.currentTimeMillis())}, tableFilled=$tableFilled, maxAttempt=$maxAttempt, maxIteration=$maxIteration")
+//    println(s"Duration: ${Util.durationToString(start, System.currentTimeMillis())}, tableFilled=$tableFilled, maxAttempt=$maxAttempt, maxIteration=$maxIteration")
     if tableFilled then
       for (row <- 1 to 9)
         val numbers = random.shuffle(List(1, 2, 3, 4, 5, 6, 7, 8, 9)).toArray
-        for (columnItem <- 0 until Config.level())
+        val maxLevel = random.between(0, Config.level())
+        for (columnItem <- 0 to maxLevel)
           val column = numbers(columnItem)
           updateCell(row, column, None)
           updateCell(row, column, true)
