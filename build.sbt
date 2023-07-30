@@ -1,13 +1,14 @@
 import java.util.Calendar
 
 ThisBuild / scalaVersion := "3.3.0"
-ThisBuild / version := "0.0.3"
+ThisBuild / version := "0.0.4"
 ThisBuild / organization := "com.stulsoft"
 ThisBuild / organizationName := "stulsoft"
 
 lazy val root = (project in file("."))
   .settings(
     name := "sudoku",
+    libraryDependencies += "com.stulsoft" %% "common" % "latest.integration",
     libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.4.7",
     libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "3.0.0",

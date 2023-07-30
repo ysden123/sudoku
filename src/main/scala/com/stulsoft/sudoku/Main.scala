@@ -4,11 +4,10 @@
 
 package com.stulsoft.sudoku
 
-import com.stulsoft.sudoku.model.{Cell, Square, Table}
-import com.typesafe.scalalogging.LazyLogging
+import com.stulsoft.common.ManifestInfo
+import com.stulsoft.sudoku.model.Table
 
-import java.awt.Color
-import scala.swing.{Action, Dimension, Frame, Label, MainFrame, Menu, MenuBar, MenuItem, SimpleSwingApplication}
+import scala.swing.*
 
 object Main extends SimpleSwingApplication:
   override def top: Frame = new MainFrame:
