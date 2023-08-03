@@ -4,13 +4,14 @@
 
 package com.stulsoft.sudoku.model
 
-import com.stulsoft.sudoku.Config
 import com.stulsoft.sudoku.logic.{Util, Validator}
+import com.stulsoft.sudoku.{Config, Sound}
 
 import java.awt.Color
 import javax.swing.BorderFactory
 import javax.swing.border.EtchedBorder
-import scala.swing.{Color, GridPanel}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.swing.GridPanel
 import scala.util.Random
 
 class Table extends GridPanel(3, 3):
@@ -59,7 +60,7 @@ class Table extends GridPanel(3, 3):
       tableFilled = countFilledCellsInTable() == 9 * 9
       maxAttempt = attempt
     }
-//    println(s"Duration: ${Util.durationToString(start, System.currentTimeMillis())}, tableFilled=$tableFilled, maxAttempt=$maxAttempt, maxIteration=$maxIteration")
+    //    println(s"Duration: ${Util.durationToString(start, System.currentTimeMillis())}, tableFilled=$tableFilled, maxAttempt=$maxAttempt, maxIteration=$maxIteration")
     if tableFilled then
       for (row <- 1 to 9)
         val numbers = random.shuffle(List(1, 2, 3, 4, 5, 6, 7, 8, 9)).toArray
@@ -70,6 +71,7 @@ class Table extends GridPanel(3, 3):
           updateCell(row, column, true)
     else
       clear()
+
 
   def restoreInitialState(): Unit =
     for {
@@ -117,6 +119,7 @@ class Table extends GridPanel(3, 3):
   def updateBorder(): Unit =
     val color = if Validator.isValidTable(this) then Color.GREEN else Color.RED
     border = BorderFactory.createLineBorder(color, 3)
+    if countFilledCellsInTable() == 9 * 9 then Sound.playFanfare()
 
   /**
    * Returns a cell for specified row and column in the table.
