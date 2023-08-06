@@ -6,25 +6,53 @@ package com.stulsoft.sudoku
 
 import com.typesafe.scalalogging.StrictLogging
 
-import javax.sound.sampled.{AudioFormat, AudioSystem}
-import java.io.File
+import java.io.{ByteArrayInputStream, InputStream}
+import javax.sound.sampled.AudioSystem
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 object Sound extends StrictLogging:
   given ExecutionContext = ExecutionContext.global
-  def playFanfare():Unit=
-    Future {
-      try
-        val clip = AudioSystem.getClip()
-        val protocol = Sound.getClass.getResource("Sound.class").getProtocol
-        val fileName = if protocol == "jar" then
-          "sounds/fanfare.wav"
-        else
-          "src/universal/bin/sounds/fanfare.wav"
-        val file = new File(fileName)
-        clip.open(AudioSystem.getAudioInputStream(file))
-        clip.start()
+
+  private def readBinaryDataFromResource(resourceName: String): Try[ByteArrayInputStream] =
+    Try {
+      var inputStream: InputStream = null
+      try {
+        inputStream = getClass.getClassLoader.getResourceAsStream(resourceName)
+        val buffer = Array.ofDim[Byte](1024 * 10) // You can adjust the buffer size as needed
+        var bytesRead = 0
+        val byteArrayStream = new java.io.ByteArrayOutputStream()
+
+        while ( {
+          bytesRead = inputStream.read(buffer)
+          bytesRead
+        } != -1) {
+          byteArrayStream.write(buffer, 0, bytesRead)
+        }
+        new ByteArrayInputStream(byteArrayStream.toByteArray)
+      }
       catch
         case exception: Exception =>
           logger.error(exception.getMessage, exception)
+          throw exception
+      finally {
+        if (inputStream != null) {
+          inputStream.close()
+        }
+      }
+    }
+
+  def playFanfare(): Unit =
+    Future {
+      readBinaryDataFromResource("sounds/fanfare.wav") match
+        case Success(inputStream) =>
+          try
+            val clip = AudioSystem.getClip()
+            clip.open(AudioSystem.getAudioInputStream(inputStream))
+            clip.start()
+          catch
+            case exception: Exception =>
+              logger.error(exception.getMessage, exception)
+        case Failure(exception) =>
+          logger.error("Data was not read")
     }
